@@ -1,0 +1,85 @@
+﻿using Nemerle.Collections;
+using Nemerle.Text;
+using Nemerle.Utility;
+
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Windows.Forms;
+
+namespace WinFormsMVP.View
+{
+	/// <summary>
+	/// Description of CustomerForm.
+	/// </summary>
+	public partial class CustomerForm : Form, ICustomerView
+	{
+		mutable _isEditMode = false;
+
+		public this()
+		{
+			InitializeComponent();
+		}
+
+		public CustomerList : IList[string]
+		{
+			get { this.customerListBox.DataSource :> IList[_] }
+			set { this.customerListBox.DataSource = value }
+		}
+
+		public SelectedCustomer : int
+		{
+			get { this.customerListBox.SelectedIndex }
+			set { this.customerListBox.SelectedIndex = value }
+		}
+
+		public Address : string
+		{
+			get { this.addressTextBox.Text }
+			set { this.addressTextBox.Text = value }
+		}
+
+		public CustomerName : string
+		{
+			get { this.nameTextBox.Text }
+			set { this.nameTextBox.Text = value }
+		}
+
+		public Phone : string
+		{
+			get { this.phoneTextBox.Text }
+			set { this.phoneTextBox.Text = value }
+		}
+
+		public Presenter : Presenter.CustomerPresenter { private get; set; }
+
+		private customerListBox_SelectedIndexChanged(_ : object,  _ : EventArgs) : void
+		{
+			// FIXME: try/catch
+			Presenter.UpdateCustomerView(customerListBox.SelectedIndex)
+		}
+
+		private editButton_Click(_ : object, _ : EventArgs) : void
+		{
+			this.addressTextBox.ReadOnly = _isEditMode;
+			this.nameTextBox.ReadOnly = _isEditMode;
+			this.phoneTextBox.ReadOnly = _isEditMode;
+
+			_isEditMode = !_isEditMode;
+
+			this.editButton.Text = if (_isEditMode) "Save" else "Edit";
+			// TODO: add cancel button
+
+			unless (_isEditMode)
+			{
+				// TODO: validation
+				// FIXME: try/catch
+				Presenter.SaveCustomer();
+			}
+		}
+	}
+}

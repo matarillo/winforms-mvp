@@ -1,0 +1,29 @@
+﻿using Nemerle;
+using Nemerle.Collections;
+using Nemerle.Text;
+using Nemerle.Utility;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace WinFormsMVP.View
+{
+	/// <summary>
+	/// Description of ICustomerView.
+	/// </summary>
+	public interface ICustomerView
+	{
+		CustomerList : IList[string] { get; set; }
+
+		SelectedCustomer : int { get; set; }
+
+		CustomerName : string { get; set; }
+
+		Address : string { get; set; }
+
+		Phone : string { get; set; }
+
+		Presenter : Presenter.CustomerPresenter { set; }
+	}
+}

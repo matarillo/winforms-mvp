@@ -1,0 +1,25 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Windows.Forms;
+
+namespace WinFormsMVP
+{
+	static class Program
+	{
+	/// <summary>
+	/// The main entry point for the application.
+	/// </summary>
+		[STAThread]
+		static Main() : void
+		{
+			Application.EnableVisualStyles();
+			Application.SetCompatibleTextRenderingDefault(false);
+			def repository = Model.CustomerXmlRepository(Application.StartupPath);
+			def view = View.CustomerForm();
+
+			// TODO: IOC
+			_ = Presenter.CustomerPresenter(view, repository);
+			Application.Run(view);
+		}
+	}
+}

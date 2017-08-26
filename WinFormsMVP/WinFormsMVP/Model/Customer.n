@@ -1,0 +1,40 @@
+﻿using Nemerle;
+using Nemerle.Collections;
+using Nemerle.Text;
+using Nemerle.Utility;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace WinFormsMVP.Model
+{
+	/// <summary>
+	/// Description of Customer.
+	/// </summary>
+	public class Customer
+	{
+		public Name : string { get; set; }
+		public Address : string { get; set; }
+		public Phone : string { get; set; }
+		public override Equals(obj : object) : bool
+		{
+			match (obj) {
+				| other is Customer => Equals(other);
+				| _ => false;
+			}
+		}
+		public Equals(other : Customer) : bool
+		{
+			if (other == null) {
+				false;
+			} else {
+    			(this.Name == other.Name) && (this.Address == other.Address) && (this.Phone == other.Phone);
+			}
+		}
+		public override GetHashCode() : int
+		{
+			Name.GetHashCode() ^ Address.GetHashCode() ^ Phone.GetHashCode();
+		}
+	}
+}

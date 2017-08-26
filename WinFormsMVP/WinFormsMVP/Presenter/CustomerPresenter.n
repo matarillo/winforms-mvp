@@ -1,0 +1,58 @@
+﻿using Nemerle;
+using Nemerle.Collections;
+using Nemerle.Text;
+using Nemerle.Utility;
+using Nemerle.Extensions;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+using WinFormsMVP.View;
+using WinFormsMVP.Model;
+
+namespace WinFormsMVP.Presenter
+{
+	/// <summary>
+	/// Description of CustomerPresenter.
+	/// </summary>
+	public class CustomerPresenter
+	{
+		_view : ICustomerView;
+		_repository : ICustomerRepository;
+
+		public this(view : ICustomerView, repository : ICustomerRepository)
+		{
+			_view = view;
+			view.Presenter = this;
+			_repository = repository;
+
+			UpdateCustomerListView()
+		}
+
+		UpdateCustomerListView() : void
+		{
+			def customerNames = _repository.GetAllCustomers().Select(x => x.Name);
+			def selectedCustomer = if (_view.SelectedCustomer >= 0) _view.SelectedCustomer else 0;
+			_view.CustomerList = customerNames.ToList();
+			_view.SelectedCustomer = selectedCustomer
+		}
+
+		public UpdateCustomerView(p : int) : void
+		{
+			// customer list can be cached instead of re-fetching the customer each time
+			// this may be infeasible if the list is large
+			def customer = _repository.GetCustomer(p);
+			_view.CustomerName = customer.Name;
+			_view.Address = customer.Address;
+			_view.Phone = customer.Phone
+		}
+
+		public SaveCustomer() : void
+		{
+			def customer = Customer() <- (Name = _view.CustomerName, Address = _view.Address, Phone = _view.Phone);
+			_repository.SaveCustomer(_view.SelectedCustomer, customer);
+			UpdateCustomerListView()
+		}
+	}
+}

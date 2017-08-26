@@ -1,0 +1,72 @@
+﻿using Nemerle;
+using Nemerle.Collections;
+using Nemerle.Text;
+using Nemerle.Utility;
+using Nemerle.Extensions;
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Xml.Serialization;
+
+namespace WinFormsMVP.Model
+{
+	/// <summary>
+	/// Description of CustomerXmlRepository.
+	/// </summary>
+	public class CustomerXmlRepository : ICustomerRepository
+	{
+		_xmlFilePath : string;
+		_serializer : XmlSerializer = XmlSerializer(typeof(List[Customer]));
+		_customers : Lazy[List[Customer]];
+
+		public this(fullPath : string)
+		{
+			_xmlFilePath = fullPath + @"\customers.xml";
+			unless (File.Exists(_xmlFilePath)) {
+				CreateCustomerXmlStub();
+			}
+			_customers = Lazy(() =>
+				using (def reader = StreamReader(_xmlFilePath))
+				{
+					_serializer.Deserialize(reader) :> List[Customer];
+				}
+			)
+		}
+
+		CreateCustomerXmlStub() : void
+		{
+			def stubCustomerList = List() <-
+			[
+				Customer() <- (Name = "Joe", Address = "Nowhere, TX 1023", Phone = "123-456"),
+				Customer() <- (Name = "Jane", Address = "Nowhere, AZ 1026", Phone = "124-456"),
+				Customer() <- (Name = "Steve", Address = "Nowhere, UT 1005", Phone = "125-456"),
+			];
+			SaveCustomerList(stubCustomerList)
+		}
+
+		SaveCustomerList(customers : List[Customer]) : void
+		{
+			using (def writer = StreamWriter(_xmlFilePath, false))
+			{
+				_serializer.Serialize(writer, customers)
+			}
+		}
+
+		public GetAllCustomers() : IEnumerable[Customer]
+		{
+			_customers.Value
+		}
+
+		public GetCustomer(id : int) : Customer
+		{
+			_customers.Value[id]
+		}
+
+		public SaveCustomer(id : int, customer : Customer) : void
+		{
+			_customers.Value[id] = customer;
+			SaveCustomerList(_customers.Value)
+		}
+	}
+}
